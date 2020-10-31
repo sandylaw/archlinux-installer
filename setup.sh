@@ -1,19 +1,39 @@
 #!/bin/bash
+set -x
 #v2020.10.31 modify by sandylaw <freelxs@gmail.com>
 # $0 refers to this script itself
 # $1 refers to the first argument passed (in our case, from install.sh it is $EFI)
 # $2 refers to the second argument passed (in our case, from install.sh it is $layout)
 # $3 refers to encry data partition  (in our case, from install.sh it is $data_p)
-# $4 refers to grub args, 
+# $4 refers to grub args,
 log_file=/var/log/install.log
-exec > >(tee -a ${log_file} )
+exec > >(tee -a ${log_file})
 exec 2> >(tee -a ${log_file} >&2)
 
 echo "Arch-chroots"
 data_p="${3:-none}"
 grub_default_arg="${4:-none}"
-user=user
-userpasswd=user
+loader="${5:-none}"
+
+user=arch
+userpasswd=arch
+
+function install_grub() {
+	if [[ "$loader" == efi ]]; then
+		grub-install --target=x86_64-efi --bootloader-id=GRUB --efi-directory=/boot/efi
+		grub-mkconfig -o /boot/grub/grub.cfg
+		grub-mkconfig -o /boot/efi/EFI/arch/grub.cfg || true
+	else
+		if [[ $data_p =~ nvme ]]; then
+			disk=${data_p:0:-2}
+		else
+			disk=$(echo "${data_p}" | tr -cd 'a-z''A-Z''/')
+		fi
+
+		grub-install --target=i386-pc "$disk"
+		grub-mkconfig -o /boot/grub/grub.cfg
+	fi
+}
 clear
 echo "Setting up ArchLinux..."
 pacman -Syy
@@ -45,7 +65,6 @@ echo root:passwd | chpasswd
 # Adds a new user to wheel group
 
 useradd -m -G wheel "$user"
-
 
 echo "$user":"$userpasswd" | chpasswd
 pacman -S --noconfirm sudo # Installs sudo
@@ -86,7 +105,7 @@ fi
 
 # Network Manager
 echo "Install network packages"
-pacman -S --noconfirm networkmanager netctl wpa_supplicant dhclient dialog
+pacman -S --noconfirm networkmanager netctl wpa_supplicant dhclient dialog network-manager-applet wireless_tools
 systemctl enable NetworkManager.service # Would enable network manager in startup
 
 # Xfce
@@ -145,26 +164,22 @@ if [[ -n "${3}" ]]; then
 	sed -ri '/^HOOKS=/cHOOKS=\"base udev autodetect modconf block keyboard keymap encrypt lvm2 resume filesystems fsck\"' /etc/mkinitcpio.conf
 
 fi
-
+if [[ "$loader" == efi ]]; then
+	pacman -S --noconfirm efibootmgr
+fi
 # Installing bootloader
-pacman -S --noconfirm os-prober ntfs-3g grub btrfs-progs efibootmgr lvm2
+pacman -S --noconfirm os-prober ntfs-3g grub btrfs-progs lvm2
 os-prober
-mkinitcpio -v -p linux
-grub-install --target=x86_64-efi --bootloader-id=GRUB --efi-directory=/boot/efi
-grub-mkconfig -o /boot/grub/grub.cfg
-grub-mkconfig -o /boot/efi/EFI/arch/grub.cfg || true
 if ! [[ "${data_p}" == "none" ]]; then
 	sed -ri "/^GRUB_CMDLINE_LINUX_DEFAULT=/cGRUB_CMDLINE_LINUX_DEFAULT=\"${grub_default_arg}\"" /etc/default/grub
-	dd if=/dev/urandom of=/crypto_keyfile.bin bs=512 count=10
-	chmod 000 /crypto_keyfile.bin
-	chmod 600 /boot/initramfs-linux*
-	cryptsetup luksAddKey "$data_p" /crypto_keyfile.bin || exit
-	sed -ri '/^FILES=/d' /etc/mkinitcpio.conf
-	sed -ri '/^#[ ]*FILES/{n;n;s|$|\nFILES=\"/crypto_keyfile.bin\"|}' /etc/mkinitcpio.conf
-	mkinitcpio -p linux
-	grub-mkconfig -o /boot/grub/grub.cfg
-	grub-mkconfig -o /boot/efi/EFI/arch/grub.cfg || true
+	sed -ri "/^[#]*[ ]*GRUB_ENABLE_CRYPTODISK/cGRUB_ENABLE_CRYPTODISK=y" /etc/default/grub
+	#dd if=/dev/urandom of=/crypto_keyfile.bin bs=512 count=10
+	#chmod 000 /crypto_keyfile.bin
+	#chmod 600 /boot/initramfs-linux*
+	#cryptsetup luksAddKey "$data_p" /crypto_keyfile.bin || exit
+	#sed -ri '/^FILES=/d' /etc/mkinitcpio.conf
+	#sed -ri '/^#[ ]*FILES/{n;n;s|$|\nFILES=\"/crypto_keyfile.bin\"|}' /etc/mkinitcpio.conf
 fi
-
+mkinitcpio -v -p linux
+install_grub
 systemctl set-default graphical.target # Sets Graphical Target as default
-rm -f "$0"

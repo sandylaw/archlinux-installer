@@ -7,10 +7,6 @@ function pause() {
 pause
 umount -R /mnt
 swapoff -a
-lvremove -ff arch || true
-vgremove -ff arch || true
-pvremove --force --force /dev/mapper/luks_lvm || true
-pvs
-cryptsetup luksClose luks_lvm
+cryptsetup luksClose luks
 cryptsetup-reencrypt --decrypt data_p
 cp removecrypt.sh.bak removecrypt.sh
