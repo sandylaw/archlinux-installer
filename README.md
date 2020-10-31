@@ -9,7 +9,7 @@ These scripts are not fully tested. Play at your own risk.
 ## Features
 
 * Install Arch Linux
-* * Encrypt your data exclude /boot.
+* * Encrypt your data (root partition) , exclude` /boot and /boot/efi`
 * * Setup xfce4 Desktop Environment
 * * Install and setup some softwares
 * * __Almost unattended__
@@ -31,13 +31,30 @@ Since `git` in not available in official ISO files, `git clone` while installing
 
 Change these scripts as you like before executing them.
 
-1. After you've prepared your storage devices, `cd` into this directory, and run:
-    1.     ```
-    2.     ./install.sh
-    3.     ```
-    4. 2. Reboot and login into xfce4 Desktop Environments
-    5. 4. Reboot
-2. In case some script failed, solve the problem and rerun it. Optionally, remove the commands that has be succefully run from the script before rerunning it to save time.
+1. First prepare your storage devices, and fdisk or gdisk or other tool.
+
+    1. efi    pc: at least prepare: `/boot,  /boot/efi,  /`
+      
+    2. bios pc: at least prepare: `/boot,  /`
+
+2. After you've prepared your storage devices, `cd` into this directory, and run:
+
+    1.  `./install.sh`
+    
+    2. Reboot and login into xfce4 Desktop Environment
+
+    3. The default root passwd: `arch` #setup.sh
+    4. The default normal username and passwd: `arch:arch`  #setup.sh
+    5. The default hostname: `arch`  #setup.sh
+    
+3. In case some script failed, solve the problem and rerun it. Optionally, remove the commands that has be succefully run from the script before rerunning it to save time.
+
+## Reference
+
+- [How to Install Arch Linux on an Encrypted BTRFS partition](https://blog.mruiz.dev/linux-tut/arch-linux-encrypted-btrfs-tutorial/)
+- [A archlinux-installer](https://github.com/asifrasheed6/ArchLinux-Install)
+- [B archlinux-installer](https://github.com/bianjp/archlinux-installer)
+
 ## License
 
 MIT

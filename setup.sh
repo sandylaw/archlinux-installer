@@ -15,6 +15,7 @@ data_p="${3:-none}"
 grub_default_arg="${4:-none}"
 loader="${5:-none}"
 
+rootpasswd=arch
 user=arch
 userpasswd=arch
 
@@ -60,7 +61,7 @@ touch /etc/hosts
 # User Accounts
 clear
 echo "Setting up root user..."
-echo root:passwd | chpasswd
+echo root:"$rootpasswd" | chpasswd
 
 # Adds a new user to wheel group
 
