@@ -30,9 +30,9 @@ echo "
                      "
 echo "Install Arch Linux, written by Asif Rasheed"
 echo "Install Arch Linux, modify by SandyLaw <freelxs@gmail.com>"
-echo "First, Please Setting up disk partitions, eif/boot/data three partition at least"
+echo "First, Please Setting up disk partitions, eif/boot/root(data) three partition at least"
 scriptDir=$(
-	cd "$(dirname "$0")"||exit
+	cd "$(dirname "$0")" || exit
 	pwd
 )
 if [[ -d "/sys/firmware/efi/efivars" ]]; then
@@ -40,6 +40,8 @@ if [[ -d "/sys/firmware/efi/efivars" ]]; then
 else
 	loader=bios
 fi
+lsblk -f
+sleep 5
 read -rp "Are you ready? yes or no: " ready_state
 case "$ready_state" in
 yes | y | Y | YES) ;;
@@ -55,16 +57,34 @@ else
 	loadkeys "$layout"
 fi
 if [[ "$loader" == efi ]]; then
-	read -rp "Please enter your efi partition: " efi_p
+	while true; do
+		read -rp "Please enter your efi partition: " efi_p
+		if blkid "$efi_p"; then
+			mkfs.fat -F32 -L efi "$efi_p" || exit
+			break
+		fi
+	done
 fi
-read -rp "Please enter your boot partition: " boot_p
-read -rp "Will you use crypt encrypt the root partition?[default:yes]: " crypt
+while true; do
+	read -rp "Please enter your boot partition: " boot_p
+	if blkid "$boot_p"; then
+		mkfs.ext4 -L boot "$boot_p" || exit
+		break
+	fi
+done
+
+read -rp "Will you encrypt the root partition?[default:yes]: " crypt
 crypt=${crypt:-yes}
 case "$crypt" in
 yes | y | Y | YES)
 	modprobe dm-crypt || exit
 	modprobe dm-mod || exit
-	read -rp "Please enter your data(root,home.var...) partition: " data_p
+	while true; do
+		read -rp "Please enter your data(root,home.var...) partition: " data_p
+		if blkid "$data_p"; then
+			break
+		fi
+	done
 	echo "********************************************"
 	echo "********************************************"
 	echo "********************************************"
@@ -73,7 +93,7 @@ yes | y | Y | YES)
 	echo "********************************************"
 	cryptsetup -y -v --cipher=aes-xts-plain64 --key-size 512 --hash=sha512 luksFormat "$data_p" || exit
 	cp removecrypt.sh removecrypt.sh.bak
-	sed -ri "s:data_p:$data_p:1" removecrypt.sh || exit
+	sed -ri "s:data_p:$data_p:g" removecrypt.sh || exit
 	cryptsetup luksOpen "$data_p" luks || exit
 	mkfs.btrfs -L archlinux /dev/mapper/luks
 	mount -o compress=zstd /dev/mapper/luks /mnt || exit
@@ -133,9 +153,8 @@ yes | y | Y | YES)
 	;;
 esac
 
-# Creating filesystem
-mkfs.fat -F32 "$efi_p" || exit
-mkfs.ext4 "$boot_p" || exit
+# Display filesystem
+
 lsblk -f
 df -Th
 
