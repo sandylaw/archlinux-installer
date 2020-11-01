@@ -62,7 +62,7 @@ if [[ "$loader" == efi ]]; then
 	while true; do
 		read -rp "Please enter your efi partition: " efi_p
 		if blkid "$efi_p"; then
-			mkfs.fat -F32 -L efi "$efi_p" || exit
+			mkfs.fat -F32 "$efi_p" || exit
 			break
 		fi
 	done
