@@ -3,7 +3,7 @@
 log_file=install.log
 exec > >(tee -a ${log_file})
 exec 2> >(tee -a ${log_file} >&2)
-
+layout=us
 function pause() {
 	read -r -s -n 1 -p "Press any key to continue . . ."
 	echo ""
@@ -41,7 +41,7 @@ else
 	loader=bios
 fi
 lsblk -f
-sleep 5
+sleep 1
 read -rp "Are you ready? yes or no: " ready_state
 case "$ready_state" in
 yes | y | Y | YES) ;;
@@ -49,7 +49,6 @@ yes | y | Y | YES) ;;
 	exit
 	;;
 esac
-read -rp "Please enter your keyboard layout (default: us): " layout
 
 if test "$layout" = ""; then
 	loadkeys us
@@ -75,10 +74,12 @@ while true; do
 		else
 			disk=$(echo "${boot_p}" | tr -cd 'a-z''A-Z''/')
 		fi
-		disk_type=$(fdisk -l "$disk" | tr '[:upper:]' '[:lowwer:]' | grep 'disklabel type' | awk -F ":" '{print $2}')
-		boot_type=$(fdisk -l "$disk" | tr '[:upper:]' '[:lowwer:]' | grep "$boot_p" | awk -F '{print $6}')
-		if [[ "$disk_type" == "gpt" ]] && ! [[ "$boot_type" == 'bios boot' ]]; then
+		disk_type=$(fdisk -l "$disk" | tr '[:upper:]' '[:lower:]' | grep 'disklabel type' | awk -F ":" '{print $2}')
+		boot_type=$(fdisk -l "$disk" | tr '[:upper:]' '[:lower:]' | grep "$boot_p" | awk '{print $6}')
+		if [[ "$disk_type" =~ 'gpt' ]] && ! [[ "$boot_type" =~ 'bios' ]]; then
 			echo "Please use fdisk , change the $boot_p type to 'BIOS boot'"
+			exit 1
+		else
 			break
 		fi
 	else
