@@ -93,7 +93,7 @@ while true; do
 		break
 	fi
 done
-
+sleep 1
 read -rp "Will you encrypt the root partition?[default:yes]: " crypt
 crypt=${crypt:-yes}
 case "$crypt" in
