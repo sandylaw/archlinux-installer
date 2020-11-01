@@ -2,18 +2,19 @@
 set -x
 #v2020.10.31 modify by sandylaw <freelxs@gmail.com>
 # $0 refers to this script itself
-# $1 refers to the first argument passed (in our case, from install.sh it is $EFI)
-# $2 refers to the second argument passed (in our case, from install.sh it is $layout)
-# $3 refers to encry data partition  (in our case, from install.sh it is $data_p)
-# $4 refers to grub args,
+# $1 refers to the second argument passed (in our case, from install.sh it is $layout)
+# $2 refers to encry data partition  (in our case, from install.sh it is $data_p)
+# $3 refers to grub args,(in our case, from install.sh it is "$grub_default_arg" "$loader")
+# $4 refers loader is efi or bios.(in our case, from install.sh it is "$loader")
 log_file=/var/log/install.log
 exec > >(tee -a ${log_file})
 exec 2> >(tee -a ${log_file} >&2)
 
 echo "Arch-chroots"
-data_p="${3:-none}"
-grub_default_arg="${4:-none}"
-loader="${5:-none}"
+layout="${1:-us}"
+data_p="${2:-none}"
+grub_default_arg="${3:-none}"
+loader="${4:-none}"
 
 rootpasswd=arch
 user=arch
@@ -47,7 +48,7 @@ locale-gen
 echo "LANG=en_US.UTF-8" >/etc/locale.conf
 export LANG=en_US.UTF-8
 
-echo "KEYMAP=$2" >>/etc/vconsole.conf
+echo "KEYMAP=$layout" >>/etc/vconsole.conf
 
 # Network Configuration
 echo arch >/etc/hostname

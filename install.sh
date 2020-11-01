@@ -196,12 +196,10 @@ grub_default_arg="quiet cryptdevice=$data_uid:luks"
 genfstab -U -p /mnt >>/mnt/etc/fstab
 cp "$scriptDir"/setup.sh /mnt || pause
 cp "$scriptDir"/install.log /mnt/var/log/install.log || pause
-if test "$layout" = "" && [[ -n "$data_p" ]]; then
-	arch-chroot /mnt /bin/bash setup.sh "$efi_p" us "$data_p" "$grub_default_arg" "$loader"
-elif test "$layout" = "" && [[ -z "$data_p" ]]; then
-	arch-chroot /mnt /bin/bash setup.sh "$efi_p" us
+if [[ -n "$data_p" ]]; then
+	arch-chroot /mnt /bin/bash setup.sh "$layout" "$data_p" "$grub_default_arg" "$loader"
 else
-	arch-chroot /mnt /bin/bash setup.sh "$efi_p" "$layout"
+	exit
 fi
 sync
 sync
