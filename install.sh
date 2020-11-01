@@ -71,6 +71,7 @@ while true; do
 	read -rp "Please enter your boot partition: " boot_p
 	if blkid "$boot_p" && blkid "$efi_p"; then
 		mkfs.ext4 -L boot "$boot_p" || exit
+		break
 	elif blkid "$boot_p" && ! blkid "$efi_p"; then
 		if [[ $boot_p =~ nvme ]]; then
 			disk=${boot_p:0:-2}
@@ -86,6 +87,7 @@ while true; do
 			mkfs.ext4 -L boot "$boot_p" || exit
 			break
 		fi
+
 	else
 
 		break
