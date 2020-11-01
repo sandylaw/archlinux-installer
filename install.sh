@@ -80,6 +80,7 @@ while true; do
 			echo "Please use fdisk , change the $boot_p type to 'BIOS boot'"
 			exit 1
 		else
+			mkfs.ext4 -L boot "$boot_p" || exit
 			break
 		fi
 	else
