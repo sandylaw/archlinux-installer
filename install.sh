@@ -67,8 +67,22 @@ if [[ "$loader" == efi ]]; then
 fi
 while true; do
 	read -rp "Please enter your boot partition: " boot_p
-	if blkid "$boot_p"; then
+	if blkid "$boot_p" && blkid "$efi_p"; then
 		mkfs.ext4 -L boot "$boot_p" || exit
+	elif blkid "$boot_p" && ! blkid "$efi_p"; then
+		if [[ $boot_p =~ nvme ]]; then
+			disk=${boot_p:0:-2}
+		else
+			disk=$(echo "${boot_p}" | tr -cd 'a-z''A-Z''/')
+		fi
+		disk_type=$(fdisk -l "$disk" | tr '[:upper:]' '[:lowwer:]' | grep 'disklabel type' | awk -F ":" '{print $2}')
+		boot_type=$(fdisk -l "$disk" | tr '[:upper:]' '[:lowwer:]' | grep "$boot_p" | awk -F '{print $6}')
+		if [[ "$disk_type" == "gpt" ]] && ! [[ "$boot_type" == 'bios boot' ]]; then
+			echo "Please use fdisk , change the $boot_p type to 'BIOS boot'"
+			break
+		fi
+	else
+
 		break
 	fi
 done
@@ -178,8 +192,8 @@ grub_default_arg="quiet cryptdevice=$data_uid:luks"
 
 # Configuring install
 genfstab -U -p /mnt >>/mnt/etc/fstab
-cp setup.sh /mnt
-cp install.log /mnt/var/log/install.log
+cp "$scriptDir"/setup.sh /mnt || pause
+cp "$scriptDir"/install.log /mnt/var/log/install.log || pause
 if test "$layout" = "" && [[ -n "$data_p" ]]; then
 	arch-chroot /mnt /bin/bash setup.sh "$efi_p" us "$data_p" "$grub_default_arg" "$loader"
 elif test "$layout" = "" && [[ -z "$data_p" ]]; then
