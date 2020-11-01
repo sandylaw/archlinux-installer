@@ -39,13 +39,16 @@ Change these scripts as you like before executing them.
 
 2. After you've prepared your storage devices, `cd` into this directory, and run:
 
-    1.  `./install.sh`
+    1. Download script with one command.
     
-    2. Reboot and login into xfce4 Desktop Environment
-
-    3. The default root passwd: `arch` #setup.sh
-    4. The default normal username and passwd: `arch:arch`  #setup.sh
-    5. The default hostname: `arch`  #setup.sh
+       > `wget -o - "https://raw.githubusercontent.com/sandylaw/archlinux-installer/master/get.sh"|bash -`
+    
+    2. `./install.sh`
+    
+    3. Reboot and login into xfce4 Desktop Environment
+4.  The default root passwd: `arch` #setup.sh
+    5.  The default normal username and passwd: `arch:arch`  #setup.sh
+    6.  The default hostname: `arch`  #setup.sh
     
 3. In case some script failed, solve the problem and rerun it. Optionally, remove the commands that has be succefully run from the script before rerunning it to save time.
 
