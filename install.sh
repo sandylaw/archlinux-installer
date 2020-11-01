@@ -39,6 +39,9 @@ if [[ -d "/sys/firmware/efi/efivars" ]]; then
 	loader=efi
 else
 	loader=bios
+	echo "This script is just support efi bootloader"
+	echo "This computer's bootloader is $loader"
+	exit
 fi
 lsblk -f
 sleep 1
@@ -186,7 +189,7 @@ if [[ "$loader" == efi ]]; then
 	mkdir -p /mnt/boot/efi || exit
 	mount "$efi_p" /mnt/boot/efi || exit
 fi
-pacstrap /mnt base base-devel linux linux-firmware --noconfirm
+pacstrap /mnt base base-devel linux linux-firmware btrfs-progs --noconfirm
 
 data_uid=$(blkid | grep "$data_p" | awk '{print $2}')
 

@@ -117,7 +117,7 @@ systemctl enable lightdm.service
 systemctl enable sshd.service
 # Finishing up
 echo "The Setup will install Sofe soft,Eg:Firefox, Python3, Geany, GCC, Make and Terminal by default"
-pacman -S --noconfirm keepassxc firefox python3 python3-pip gcc make
+pacman -S --noconfirm keepassxc firefox python3 python-pip gcc make
 # compression/decompression tools
 pacman -S --noconfirm unrar p7zip
 
@@ -170,7 +170,7 @@ if [[ "$loader" == efi ]]; then
 	pacman -S --noconfirm efibootmgr
 fi
 # Installing bootloader
-pacman -S --noconfirm os-prober ntfs-3g grub btrfs-progs lvm2
+pacman -S --noconfirm os-prober ntfs-3g grub lvm2
 os-prober
 if ! [[ "${data_p}" == "none" ]]; then
 	sed -ri "/^GRUB_CMDLINE_LINUX_DEFAULT=/cGRUB_CMDLINE_LINUX_DEFAULT=\"${grub_default_arg}\"" /etc/default/grub
