@@ -44,6 +44,7 @@ pacman -Syy
 sed -i 's/^#en_US.UTF-8/en_US.UTF-8/' /etc/locale.gen
 sed -i 's/^#zh_CN.GB18030/zh_CN.GB18030/' /etc/locale.gen
 sed -i 's/^#zh_CN.UTF-8/zh_CN.UTF-8/' /etc/locale.gen
+ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 locale-gen
 echo "LANG=en_US.UTF-8" >/etc/locale.conf
 export LANG=en_US.UTF-8
@@ -112,7 +113,7 @@ systemctl enable NetworkManager.service # Would enable network manager in startu
 
 # Xfce
 echo "Install xfce4"
-pacman -S --noconfirm xfce4 mousepad lightdm lightdm-gtk-greeter openssh udisks2 xfce4-pulseaudio-plugin xfce4-screenshooter
+pacman -S --noconfirm xfce4 mousepad lightdm lightdm-gtk-greeter openssh udisks2 htop xfce4-pulseaudio-plugin xfce4-screenshooter
 systemctl enable lightdm.service
 systemctl enable sshd.service
 # Finishing up
