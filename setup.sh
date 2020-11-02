@@ -112,7 +112,7 @@ systemctl enable NetworkManager.service # Would enable network manager in startu
 
 # Xfce
 echo "Install xfce4"
-pacman -S --noconfirm xfce4 mousepad lightdm lightdm-gtk-greeter openssh
+pacman -S --noconfirm xfce4 mousepad lightdm lightdm-gtk-greeter openssh udisks2 xfce4-pulseaudio-plugin xfce4-screenshooter
 systemctl enable lightdm.service
 systemctl enable sshd.service
 # Finishing up
@@ -156,7 +156,7 @@ pacman -S --noconfirm yay
 # Fonts Sounds
 echo ""
 echo "Install fonts"
-pacman -S --noconfirm ttf-dejavu wqy-microhei noto-fonts-cjk
+pacman -S --noconfirm noto-fonts-cjk
 echo "Installing alsa and pulseaudio"
 pacman -S --noconfirm \
 	pulseaudio-{equalizer,alsa} \
