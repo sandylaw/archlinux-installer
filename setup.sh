@@ -113,7 +113,7 @@ systemctl enable NetworkManager.service # Would enable network manager in startu
 
 # Xfce
 echo "Install xfce4"
-pacman -S --noconfirm xfce4 mousepad lightdm lightdm-gtk-greeter openssh udisks2 htop xfce4-pulseaudio-plugin xfce4-screenshooter
+pacman -S --noconfirm xfce4 mousepad lightdm lightdm-gtk-greeter slock openssh udisks2 htop xfce4-pulseaudio-plugin xfce4-screenshooter
 systemctl enable lightdm.service
 systemctl enable sshd.service
 # Finishing up
